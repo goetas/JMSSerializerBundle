@@ -5,6 +5,7 @@ namespace JMS\SerializerBundle;
 use JMS\DiExtraBundle\DependencyInjection\Compiler\LazyServiceMapPass;
 use JMS\SerializerBundle\DependencyInjection\Compiler\CustomHandlersPass;
 use JMS\SerializerBundle\DependencyInjection\Compiler\DoctrinePass;
+use JMS\SerializerBundle\DependencyInjection\Compiler\AssignVisitorsPass;
 use JMS\SerializerBundle\DependencyInjection\Compiler\ExpressionFunctionProviderPass;
 use JMS\SerializerBundle\DependencyInjection\Compiler\FormErrorHandlerTranslationDomainPass;
 use JMS\SerializerBundle\DependencyInjection\Compiler\RegisterEventListenersAndSubscribersPass;
@@ -19,17 +20,30 @@ class JMSSerializerBundle extends Bundle
 {
     public function build(ContainerBuilder $builder)
     {
-        $builder->addCompilerPass($this->getServiceMapPass('jms_serializer.serialization_visitor', 'format',
-            function (ContainerBuilder $container, $def) {
-                $container->getDefinition('jms_serializer.serializer')->replaceArgument(2, $def);
-            }
-        ));
-        $builder->addCompilerPass($this->getServiceMapPass('jms_serializer.deserialization_visitor', 'format',
-            function (ContainerBuilder $container, $def) {
-                $container->getDefinition('jms_serializer.serializer')->replaceArgument(3, $def);
-            }
-        ));
+//        $builder->addCompilerPass($this->getServiceMapPass('jms_serializer.serialization_visitor', 'format',
+//            function (ContainerBuilder $container, $def) {
+//                foreach ($container->findTaggedServiceIds('jms_serializer.serializer') as $id => $attributes) {
+//                    $serializerDef = $container->getDefinition($id);
+//                    if (!$serializerDef->getTag('jms_serializer.instance')
+//                        || empty($attributes['instance'])
+//                        || $attributes['instance'] === $serializerDef->getTag('jms_serializer.instance')['name']
+//                    ) {
+//
+//                    }
+//                    $serializerDef->replaceArgument(2, $def);
+//                }
+//            }
+//        ));
+//        $builder->addCompilerPass($this->getServiceMapPass('jms_serializer.deserialization_visitor', 'format',
+//            function (ContainerBuilder $container, $def) {
+//                foreach ($container->findTaggedServiceIds('jms_serializer.serializer') as $id => $attributes) {
+//                    $serializerDef = $container->getDefinition($id);
+//                    $serializerDef->replaceArgument(3, $def);
+//                }
+//            }
+//        ));
 
+        $builder->addCompilerPass(new AssignVisitorsPass(), PassConfig::TYPE_BEFORE_REMOVING);
         $builder->addCompilerPass(new FormErrorHandlerTranslationDomainPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION);
         $builder->addCompilerPass(new TwigExtensionPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION);
         $builder->addCompilerPass(new ExpressionFunctionProviderPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION);
@@ -40,7 +54,7 @@ class JMSSerializerBundle extends Bundle
 
     private function getServiceMapPass($tagName, $keyAttributeName, $callable)
     {
-        if (class_exists('JMS\DiExtraBundle\DependencyInjection\Compiler\LazyServiceMapPass')) {
+        if (0 && class_exists('JMS\DiExtraBundle\DependencyInjection\Compiler\LazyServiceMapPass')) {
             return new LazyServiceMapPass($tagName, $keyAttributeName, $callable);
         }
 

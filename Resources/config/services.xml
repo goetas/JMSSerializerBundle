@@ -44,7 +44,9 @@
         </service>
 
         <!-- Metadata Drivers -->
-        <service id="jms_serializer.type_parser" class="JMS\Serializer\Type\Parser" public="false"/>
+        <service id="jms_serializer.type_parser" class="JMS\Serializer\Type\Parser" public="false">
+            <tag name="jms_serializer.global"/>
+        </service>
 
         <service id="jms_serializer.metadata.file_locator" class="Metadata\Driver\FileLocator" public="false">
             <argument type="collection" /><!-- Namespace Prefixes mapping to Directories -->
@@ -143,11 +145,14 @@
             <argument type="service" id="doctrine_phpcr"/>
             <argument type="service" id="jms_serializer.unserialize_object_constructor"/>
         </service>
-        <service id="jms_serializer.unserialize_object_constructor" class="JMS\Serializer\Construction\UnserializeObjectConstructor" public="false" />
+        <service id="jms_serializer.unserialize_object_constructor" class="JMS\Serializer\Construction\UnserializeObjectConstructor" public="false">
+            <tag name="jms_serializer.global"/>
+        </service>
         <service id="jms_serializer.object_constructor" alias="jms_serializer.unserialize_object_constructor" public="false" />
 
         <!-- Serializer -->
         <service id="jms_serializer.serializer" class="JMS\Serializer\Serializer" public="false">
+
             <argument type="service" id="jms_serializer.metadata_factory" />
             <argument type="collection">
                 <argument key="2" type="service" id="jms_serializer.deserialization_graph_navigator_factory" />
@@ -190,6 +195,8 @@
             <argument type="collection">
                 <argument type="service" key="container" id="service_container"/>
             </argument>
+
+            <tag name="jms_serializer.global" />
         </service>
         <service id="jms_serializer.expression_language" class="Symfony\Component\ExpressionLanguage\ExpressionLanguage" public="false"/>
 

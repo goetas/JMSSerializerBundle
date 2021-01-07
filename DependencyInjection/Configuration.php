@@ -30,15 +30,27 @@ class Configuration implements ConfigurationInterface
             $root = $tb->root('jms_serializer')->children();
         }
 
+        $this->addConfigNodes($root);
+
+        $instanceRoot = $root->arrayNode('instances')
+            ->useAttributeAsKey('name')
+            ->prototype('array')
+            ->children();
+
+        $this->addConfigNodes($instanceRoot);
+
+        return $tb;
+    }
+
+    private function addConfigNodes($root, string $instanceName = null): void
+    {
         $this->addHandlersSection($root);
         $this->addSubscribersSection($root);
         $this->addObjectConstructorsSection($root);
         $this->addSerializersSection($root);
-        $this->addMetadataSection($root);
+        $this->addMetadataSection($root, $instanceName);
         $this->addVisitorsSection($root);
         $this->addContextSection($root);
-
-        return $tb;
     }
 
     private function addHandlersSection(NodeBuilder $builder)
@@ -150,7 +162,7 @@ class Configuration implements ConfigurationInterface
         ;
     }
 
-    private function addMetadataSection(NodeBuilder $builder)
+    private function addMetadataSection(NodeBuilder $builder, string $instanceName = null)
     {
         $builder
             ->arrayNode('metadata')
@@ -180,7 +192,7 @@ class Configuration implements ConfigurationInterface
                     ->arrayNode('file_cache')
                         ->addDefaultsIfNotSet()
                         ->children()
-                            ->scalarNode('dir')->defaultValue('%kernel.cache_dir%/jms_serializer')->end()
+                            ->scalarNode('dir')->defaultValue('%kernel.cache_dir%/jms_serializer'.($instanceName ? ('_'.$instanceName): ''))->end()
                         ->end()
                     ->end()
                     ->booleanNode('auto_detection')->defaultTrue()->end()
